@@ -1,5 +1,5 @@
 import streamlit as st
-from langchain.agents import AgentExecutor, create_react_agent
+from langchain.agents import initialize_agent, AgentType
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from tools import get_stock_financials, search_news
@@ -13,7 +13,7 @@ def create_agent():
     )
     tools = [get_stock_financials, search_news]
 
-    # Промпт, который строго определяет поведение аналитика
+    # Строгий промпт для аналитика
     template = """
 Ты — опытный финансовый аналитик. Твоя задача — предоставить структурированный анализ акций компании на основе данных.
 У тебя есть доступ к следующим инструментам:
@@ -46,13 +46,17 @@ Thought: {agent_scratchpad}
 """
 
     prompt = PromptTemplate.from_template(template)
-    agent = create_react_agent(llm, tools, prompt)
 
-    return AgentExecutor(
-        agent=agent,
+    # Используем классический initialize_agent (ReAct)
+    agent_executor = initialize_agent(
         tools=tools,
+        llm=llm,
+        agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+        prompt=prompt,
         verbose=True,
         handle_parsing_errors=True,
         max_iterations=10,
         return_intermediate_steps=True
     )
+
+    return agent_executor

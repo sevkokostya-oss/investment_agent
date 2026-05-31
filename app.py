@@ -3,7 +3,7 @@ import yfinance as yf
 import matplotlib.pyplot as plt
 from io import BytesIO
 from datetime import datetime, timedelta
-from langchain.callbacks.base import BaseCallbackHandler
+from langchain_core.callbacks.base import BaseCallbackHandler
 from agent import create_agent
 
 # Настройка страницы

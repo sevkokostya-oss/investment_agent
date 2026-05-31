@@ -1,4 +1,6 @@
 import json
+import os
+from dotenv import load_dotenv
 import streamlit as st
 import yfinance as yf
 from serpapi import GoogleSearch
@@ -94,7 +96,14 @@ def search_news(query: str) -> str:
     Возвращает JSON-список из не более 5 новостей с полями: title, snippet, source, date, link.
     """
     try:
-        serpapi_key = st.secrets["SERPAPI_API_KEY"]
+        load_dotenv()
+        serpapi_key = os.getenv("SERPAPI_API_KEY")
+        if not serpapi_key:
+            serpapi_key = st.secrets.get("SERPAPI_API_KEY") if hasattr(st, 'secrets') else None
+
+        if not serpapi_key:
+            return json.dumps({"error": "SERPAPI_API_KEY не найден. Установите переменную окружения SERPAPI_API_KEY или добавьте его в .streamlit/secrets.toml."})
+
         params = {
             "q": query,
             "tbm": "nws",
